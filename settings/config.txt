@@ -1,0 +1,58 @@
+# For more options and information see
+# http://www.raspberrypi.org/documentation/configuration/config-txt.md
+# Some settings may impact device functionality. See link above for details
+
+# Additional overlays and parameters are documented /boot/overlays/README
+
+# Some settings from the orignal config.txt
+gpu_mem_256=128
+gpu_mem_512=256
+gpu_mem_1024=256
+overscan_scale=1
+
+##########################
+#### GENERIC SETTINGS ####
+##########################
+
+# Disable low voltage warning when on 3.3v/vbatt
+avoid_warnings=2
+
+# Enable safe shutdown
+dtoverlay=gpio-poweroff,gpiopin=17,active_low="y"
+
+# SD overclock (ONLY IF SD SUPPORTS IT)
+#dtoverlay=sdtweak,overclock_50=100
+
+##########################
+#### TV/HDMI SETTINGS ####
+##########################
+
+# uncomment if hdmi display is not detected and composite is being output
+#hdmi_force_hotplug=1
+ 
+# uncomment to force a specific HDMI mode (here we are forcing 800x480!)
+#hdmi_group=2
+#hdmi_mode=87
+#hdmi_cvt=800 480 60 6 0 0 0
+
+#######################
+#### SPI SETTINGS #####
+#######################
+
+# Enable SPI
+dtparam=spi=on
+
+# Custom HDMI res
+hdmi_force_hotplug=1
+hdmi_cvt=240 216 60 1 0 0 0
+hdmi_group=2
+hdmi_mode=87
+display_rotate=2
+
+#########################
+#### AUDIO SETTINGS #####
+#########################
+
+# I2S enable
+dtoverlay=hifiberry-dac
+dtoverlay=i2s-mmap

@@ -1,0 +1,18 @@
+#
+# This script gets sourced on boot
+# It should exist as /boot/config-cs.txt
+#
+
+# Mode to boot in, TESTER will run a debug app
+MODE=NORMAL
+#MODE=TESTER
+#MODE=SHELL
+
+# Cloner settings
+CLONER=OFF
+
+# Location of tester script (gets called with <python $TESTER>)
+TESTER=/home/pi/Circuit-Gem/cs-tester/cs-tester.py
+
+# Startup Exec
+STARTUPEXEC="sudo setfont /home/pi/Circuit-Gem/settings/miniwi-8.psf.gz"

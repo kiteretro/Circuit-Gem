@@ -1,0 +1,9 @@
+[Unit]
+Description=Circuit Gem FBCP Service
+ 
+[Service]
+ExecStart=/home/pi/Circuit-Gem/cs-fbcp/cs-fbcp
+ 
+[Install]
+WantedBy=multi-user.target
+Alias=cs-hud.service

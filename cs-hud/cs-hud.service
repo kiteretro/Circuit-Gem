@@ -1,0 +1,9 @@
+[Unit]
+Description=Circuit Gem HUD/OSD Service
+ 
+[Service]
+ExecStart=/home/pi/Circuit-Gem/cs-hud/cs-hud
+ 
+[Install]
+WantedBy=multi-user.target
+Alias=cs-hud.service
