@@ -49,7 +49,7 @@ else
   USER="pi"
 fi
 
-BUILD="CSL_"$(date +"%Y%m%d-%H%M%S")
+BUILD="GEM_"$(date +"%Y%m%d-%H%M%S")
 GITHUBPROJECT="Circuit-Gem"
 GITHUBURL="https://github.com/kiteretro/$GITHUBPROJECT"
 PIHOMEDIR="$DEST/home/pi"
