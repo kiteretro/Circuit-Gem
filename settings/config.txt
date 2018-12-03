@@ -56,3 +56,4 @@ display_rotate=2
 # I2S enable
 dtoverlay=hifiberry-dac
 dtoverlay=i2s-mmap
+

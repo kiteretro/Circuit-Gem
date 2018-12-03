@@ -60,6 +60,19 @@ def testGPIO():
   else:
     print bcolors.OKGREEN + "GPIO SHDN   = [ ON ]" + bcolors.ENDC
 
+# Test LCD
+#############################
+def testLCD():
+  print bcolors.OKBLUE + "TEST LCD.." + bcolors.ENDC
+  pngview_proc = subprocess.Popen([bindir + "pngview", "-l", "99999", bindir + "COLOUR.png", "-x", "0", "-y", "0"])
+  time.sleep(1)
+  pngview_poll = pngview_proc.poll()
+  if (pngview_poll):
+    print "ERROR: Failed to start PNGVIEW, got return code [" + str(pngview_poll) + "]\n"
+  else:
+    time.sleep(3)
+    pngview_proc.terminate()
+
 # LOGIC
 #############################
 # Main loop
@@ -71,6 +84,9 @@ try:
     
     testGPIO()
     time.sleep(3)
+    
+    testLCD()
+    time.sleep(1)
   
 except KeyboardInterrupt:
   print "Quitting.."

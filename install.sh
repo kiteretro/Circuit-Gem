@@ -124,6 +124,9 @@ fi
 #####################################################################
 # Copy required to /
 
+# Copy I2S sound
+execute "cp $BINDIR/settings/asound.conf $DEST/etc/asound.conf"
+
 # Copy autostart
 if ! exists "$DEST/opt/retropie/configs/all/autostart_ORIGINAL.sh" ; then
   execute "mv $DEST/opt/retropie/configs/all/autostart.sh $DEST/opt/retropie/configs/all/autostart_ORIGINAL.sh"
@@ -134,27 +137,7 @@ execute "chown $USER:$USER $DEST/opt/retropie/configs/all/autostart.sh"
 # Copy ES safe shutdown script
 execute "cp $BINDIR/settings/cs_shutdown.sh $DEST/opt/cs_shutdown.sh"
 
-# Fix splashsreen sound
-#if exists "$DEST/etc/init.d/asplashscreen" ; then
-#  execute "sed -i \"s/ *both/ alsa/\" $DEST/etc/init.d/asplashscreen"
-#fi
-#if exists "$DEST/opt/retropie/supplementary/splashscreen/asplashscreen.sh" ; then
-#  execute "sed -i \"s/ *both/ alsa/\" $DEST/opt/retropie/supplementary/splashscreen/asplashscreen.sh"
-#fi
-
-# Fix mupen64plus audio
-#if exists "$DEST/opt/retropie/emulators/mupen64plus/bin/mupen64plus.sh" ; then
-#  execute "sed -i \"s/mupen64plus-audio-omx/mupen64plus-audio-sdl/\" $DEST/opt/retropie/emulators/mupen64plus/bin/mupen64plus.sh"
-#fi
-
-# Fix C64 audio
-#if ! exists "$PIHOMEDIR/.vice/sdl-vicerc" ; then
-#  execute "mkdir -p $PIHOMEDIR/.vice/"
-#  execute "echo 'SoundOutput=2' > $PIHOMEDIR/.vice/sdl-vicerc"
-#  execute "chown -R $USER:$USER $PIHOMEDIR/.vice/"
-#fi
-
-# Install the pixel theme and set it as default
+# Install the pixel theme
 if ! exists "$DEST/etc/emulationstation/themes/pixel/system/theme.xml" ; then
   execute "mkdir -p $DEST/etc/emulationstation/themes"
   execute "rm -rf $DEST/etc/emulationstation/themes/pixel"
@@ -169,22 +152,19 @@ if ! exists "$DEST/etc/emulationstation/themes/tft/system/theme.xml" ; then
 fi
 
 # Set default (to tft)
-#execute "sed -i \"s/carbon/tft/\" $DEST/opt/retropie/configs/all/emulationstation/es_settings.cfg"
+execute "sed -i \"s/carbon/tft/\" $DEST/opt/retropie/configs/all/emulationstation/es_settings.cfg"
 
-# Install runcommand splash
-#if ! exists "$DEST/opt/retropie/configs/desktop/launching.png" ; then
-#  execute "rm -rf /tmp/es-runcommand-splash"
-#  execute "git clone --recursive --depth 1 --branch master https://github.com/ehettervik/es-runcommand-splash.git /tmp/es-runcommand-splash"
-#  execute "chown -R $USER:$USER /tmp/es-runcommand-splash"
-#  execute "cp -rp /tmp/es-runcommand-splash/* $DEST/opt/retropie/configs"
-#  execute "rm -rf /tmp/es-runcommand-splash"
-#fi
+# Disable menu sounds
+execute "sed -i \"s/\"EnableSounds\" value=\"true\"/\"EnableSounds\" value=\"false\"/\" $DEST/opt/retropie/configs/all/emulationstation/es_settings.cfg"
 
 # Enable 30sec autosave
 execute "sed -i \"s/# autosave_interval =/autosave_interval = \"30\"/\" $DEST/opt/retropie/configs/all/retroarch.cfg"
 
 # Disable 'wait for network' on boot
 execute "rm -f $DEST/etc/systemd/system/dhcpcd.service.d/wait.conf"
+
+# Remove wifi country disabler
+execute "rm -f $DEST/etc/systemd/system/multi-user.target.wants/wifi-country.service"
 
 # Install rfkill
 execute "dpkg -x $BINDIR/settings/rfkill_0.5-1_armhf.deb $DEST/"
