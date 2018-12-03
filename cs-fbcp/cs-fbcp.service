@@ -1,9 +1,11 @@
 [Unit]
 Description=Circuit Gem FBCP Service
- 
+
 [Service]
+ExecStartPre=/bin/bash -c 'while [[ ! -a "/dev/spidev0.0" ]]; do /bin/sleep 1; done'
+TimeoutStartSec=300
 ExecStart=/home/pi/Circuit-Gem/cs-fbcp/cs-fbcp
- 
+
 [Install]
 WantedBy=multi-user.target
-Alias=cs-hud.service
+Alias=cs-fbcp.service

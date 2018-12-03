@@ -143,25 +143,33 @@ execute "cp $BINDIR/settings/cs_shutdown.sh $DEST/opt/cs_shutdown.sh"
 #fi
 
 # Fix mupen64plus audio
-if exists "$DEST/opt/retropie/emulators/mupen64plus/bin/mupen64plus.sh" ; then
-  execute "sed -i \"s/mupen64plus-audio-omx/mupen64plus-audio-sdl/\" $DEST/opt/retropie/emulators/mupen64plus/bin/mupen64plus.sh"
-fi
+#if exists "$DEST/opt/retropie/emulators/mupen64plus/bin/mupen64plus.sh" ; then
+#  execute "sed -i \"s/mupen64plus-audio-omx/mupen64plus-audio-sdl/\" $DEST/opt/retropie/emulators/mupen64plus/bin/mupen64plus.sh"
+#fi
 
 # Fix C64 audio
-if ! exists "$PIHOMEDIR/.vice/sdl-vicerc" ; then
-  execute "mkdir -p $PIHOMEDIR/.vice/"
-  execute "echo 'SoundOutput=2' > $PIHOMEDIR/.vice/sdl-vicerc"
-  execute "chown -R $USER:$USER $PIHOMEDIR/.vice/"
-fi
+#if ! exists "$PIHOMEDIR/.vice/sdl-vicerc" ; then
+#  execute "mkdir -p $PIHOMEDIR/.vice/"
+#  execute "echo 'SoundOutput=2' > $PIHOMEDIR/.vice/sdl-vicerc"
+#  execute "chown -R $USER:$USER $PIHOMEDIR/.vice/"
+#fi
 
 # Install the pixel theme and set it as default
 if ! exists "$DEST/etc/emulationstation/themes/pixel/system/theme.xml" ; then
   execute "mkdir -p $DEST/etc/emulationstation/themes"
   execute "rm -rf $DEST/etc/emulationstation/themes/pixel"
   execute "git clone --recursive --depth 1 --branch master https://github.com/kiteretro/es-theme-pixel.git $DEST/etc/emulationstation/themes/pixel"
-  execute "cp -p $BINDIR/settings/es_settings.cfg $DEST/opt/retropie/configs/all/emulationstation/es_settings.cfg"
-  execute "sed -i \"s/carbon/pixel/\" $DEST/opt/retropie/configs/all/emulationstation/es_settings.cfg"
 fi
+
+# Install the tft theme
+if ! exists "$DEST/etc/emulationstation/themes/tft/system/theme.xml" ; then
+  execute "mkdir -p $DEST/etc/emulationstation/themes"
+  execute "rm -rf $DEST/etc/emulationstation/themes/tft"
+  execute "git clone --recursive --depth 1 --branch master https://github.com/anthonycaccese/es-theme-tft.git $DEST/etc/emulationstation/themes/tft"
+fi
+
+# Set default (to tft)
+#execute "sed -i \"s/carbon/tft/\" $DEST/opt/retropie/configs/all/emulationstation/es_settings.cfg"
 
 # Install runcommand splash
 #if ! exists "$DEST/opt/retropie/configs/desktop/launching.png" ; then
