@@ -28,6 +28,7 @@
 // Modified by Giles Burgess (no relation) / Kiteretro
 
 #include <stdio.h>
+#include <sys/time.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
@@ -66,6 +67,17 @@
 #define ST77XX_MADCTL_RGB     0x00
 #define ST7789_240x240_XSTART 0
 #define ST7789_240x240_YSTART 0
+
+#define ST77XX_PORCTRL        0xB2
+#define ST77XX_GCTRL          0xB7
+#define ST77XX_VCOMS          0xBB
+#define ST77XX_VDVVRHEN       0xC2
+#define ST77XX_VRHS           0xC3
+#define ST77XX_VDVSET         0xC4
+#define ST77XX_FRCTR2         0xC6
+#define ST77XX_PWMFRSEL       0xD0
+#define ST77XX_PVGAMCTRL      0xE0
+#define ST77XX_NVGAMCTRL      0xE1
 
 // From GPIO example code by Dom and Gert van Loo on elinux.org:
 #define PI1_BCM2708_PERI_BASE 0x20000000
@@ -262,32 +274,87 @@ int main(int argc, char *argv[]) {
   INP_GPIO(LED_PIN); OUT_GPIO(LED_PIN);
 
 	*gpioSet = resetMask; usleep(50); // Reset high,
-	*gpioClr = resetMask; usleep(50); // low,
+	*gpioClr = resetMask; usleep(150000); // low,
 	*gpioSet = resetMask; usleep(50); // high
   
   *gpioSet = ledMask; usleep(50); // LED high
-
-	// Initialize display
-	writeCommand(ST77XX_SWRESET);
-	usleep(150000);
-	writeCommand(ST77XX_SLPOUT);
-	usleep(500000);
-	writeCommand(ST77XX_COLMOD);
-	spiWrite(0x55);
-	usleep(10000);
-	writeCommand(ST77XX_MADCTL);
-	spiWrite(0x00); // RGB
-	writeCommand(ST77XX_GAMSET);
-	spiWrite(0x02); // Gamma curve 2 (G1.8)
-	writeCommand(ST77XX_DGMEN);
-	spiWrite(0x04); // Enable gamma
-	writeCommand(ST77XX_INVON);
-	usleep(10000);
-	writeCommand(ST77XX_NORON);
-	usleep(10000);
-	writeCommand(ST77XX_DISPON);
-	usleep(500000);
   
+  // Initialize display
+	writeCommand(ST77XX_SWRESET);
+  usleep(150000);
+  writeCommand(ST77XX_SLPOUT);
+  usleep(150000);
+
+  writeCommand(ST77XX_MADCTL);
+  spiWrite(0x00);
+
+  writeCommand(ST77XX_COLMOD);
+  spiWrite(0x05); //05:16BIT
+
+  writeCommand(ST77XX_PORCTRL);
+  spiWrite(0x0C);
+  spiWrite(0x0C);
+  spiWrite(0x00);
+  spiWrite(0x33);
+  spiWrite(0x33);
+
+  writeCommand(ST77XX_GCTRL);
+  spiWrite(0x35);
+
+  writeCommand(ST77XX_VCOMS);
+  spiWrite(0x32); //Vcom=1.35V
+                              
+  writeCommand(ST77XX_VDVVRHEN);
+  spiWrite(0x01);
+
+  writeCommand(ST77XX_VRHS);
+  spiWrite(0x19); //GVDD=4.8V 
+                              
+  writeCommand(ST77XX_VDVSET);
+  spiWrite(0x20); //VDV, 0x20:0v
+
+  //writeCommand(ST77XX_FRCTR2);
+  //spiWrite(0x00); //0x0F:60Hz
+
+  writeCommand(ST77XX_PWMFRSEL);
+  spiWrite(0xA4);
+  spiWrite(0xA1);
+
+  writeCommand(ST77XX_PVGAMCTRL);
+  spiWrite(0xD0);
+  spiWrite(0x08);
+  spiWrite(0x0E);
+  spiWrite(0x09);
+  spiWrite(0x09);
+  spiWrite(0x05);
+  spiWrite(0x31);
+  spiWrite(0x33);
+  spiWrite(0x48);
+  spiWrite(0x17);
+  spiWrite(0x14);   
+  spiWrite(0x15);
+  spiWrite(0x31);
+  spiWrite(0x34);
+
+  writeCommand(ST77XX_NVGAMCTRL);
+  spiWrite(0xD0);
+  spiWrite(0x08);
+  spiWrite(0x0E);
+  spiWrite(0x09);
+  spiWrite(0x09);
+  spiWrite(0x15);
+  spiWrite(0x31);
+  spiWrite(0x33);
+  spiWrite(0x48);
+  spiWrite(0x17);
+  spiWrite(0x14);
+  spiWrite(0x15);
+  spiWrite(0x31);
+  spiWrite(0x34);
+
+  writeCommand(ST77XX_DISPON);
+  writeCommand(ST77XX_INVON);
+
   // Fill the remaining pixels with black
   writeCommand(ST77XX_CASET);
   SPI_WRITE16(ST7789_240x240_XSTART);
