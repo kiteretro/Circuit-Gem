@@ -151,11 +151,8 @@ if ! exists "$DEST/etc/emulationstation/themes/tft/system/theme.xml" ; then
   execute "git clone --recursive --depth 1 --branch master https://github.com/anthonycaccese/es-theme-tft.git $DEST/etc/emulationstation/themes/tft"
 fi
 
-# Set default (to tft)
-execute "sed -i \"s/carbon/tft/\" $DEST/opt/retropie/configs/all/emulationstation/es_settings.cfg"
-
-# Disable menu sounds
-execute "sed -i \"s/\"EnableSounds\" value=\"true\"/\"EnableSounds\" value=\"false\"/\" $DEST/opt/retropie/configs/all/emulationstation/es_settings.cfg"
+# Copy a default es_settings.cfg file
+execute "cp -p $BINDIR/settings/es_settings.cfg $DEST/opt/retropie/configs/all/emulationstation/es_settings.cfg"
 
 # Enable 30sec autosave
 execute "sed -i \"s/# autosave_interval =/autosave_interval = \"30\"/\" $DEST/opt/retropie/configs/all/retroarch.cfg"
