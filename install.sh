@@ -195,10 +195,17 @@ execute "cp $BINDIR/cs-fbcp/cs-fbcp.service $DEST/lib/systemd/system/cs-fbcp.ser
 execute "ln -s $DEST/lib/systemd/system/cs-fbcp.service $DEST/etc/systemd/system/cs-fbcp.service"
 execute "ln -s $DEST/lib/systemd/system/cs-fbcp.service $DEST/etc/systemd/system/multi-user.target.wants/cs-fbcp.service"
 
+# Install SPLASH service
+execute "cp $BINDIR/cs-splash/cs-splash.service $DEST/lib/systemd/system/cs-splash.service"
+
+execute "ln -s $DEST/lib/systemd/system/cs-splash.service $DEST/etc/systemd/system/basic.target.wants/cs-splash.service"
+
+# Enable if ran locally
 if [[ $DEST == "" ]] ; then
   execute "systemctl daemon-reload"
   execute "systemctl restart cs-hud.service"
   execute "systemctl restart cs-fbcp.service"
+  execute "systemctl enable cs-splash.service"
 fi
 
 #####################################################################

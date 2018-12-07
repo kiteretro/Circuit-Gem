@@ -1,0 +1,11 @@
+[Unit]
+Description=Splash screen
+Before=systemd
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/home/pi/SPLASH/cs-splash
+
+[Install]
+WantedBy=basic.target
