@@ -198,7 +198,7 @@ execute "ln -s $DEST/lib/systemd/system/cs-fbcp.service $DEST/etc/systemd/system
 # Install SPLASH service
 execute "cp $BINDIR/cs-splash/cs-splash.service $DEST/lib/systemd/system/cs-splash.service"
 
-execute "ln -s $DEST/lib/systemd/system/cs-splash.service $DEST/etc/systemd/system/basic.target.wants/cs-splash.service"
+execute "ln -s $DEST/lib/systemd/system/cs-splash.service $DEST/etc/systemd/system/cs-splash.service"
 
 # Enable if ran locally
 if [[ $DEST == "" ]] ; then
