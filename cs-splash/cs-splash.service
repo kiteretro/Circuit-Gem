@@ -1,11 +1,11 @@
 [Unit]
 Description=Splash screen
-Before=systemd
+Before=sysinit.target
 DefaultDependencies=no
 
 [Service]
 Type=oneshot
-ExecStart=/home/pi/SPLASH/cs-splash
+ExecStart=/home/pi/Circuit-Gem/cs-splash/cs-splash &
 
 [Install]
-WantedBy=basic.target
+WantedBy=sysinit.target

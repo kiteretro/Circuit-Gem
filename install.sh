@@ -126,6 +126,7 @@ fi
 
 # Copy I2S sound
 execute "cp $BINDIR/settings/asound.conf $DEST/etc/asound.conf"
+execute "cp $BINDIR/settings/asoundrc.txt $DEST/home/pi/.asoundrc"
 
 # Copy autostart
 if ! exists "$DEST/opt/retropie/configs/all/autostart_ORIGINAL.sh" ; then
@@ -199,6 +200,7 @@ execute "ln -s $DEST/lib/systemd/system/cs-fbcp.service $DEST/etc/systemd/system
 execute "cp $BINDIR/cs-splash/cs-splash.service $DEST/lib/systemd/system/cs-splash.service"
 
 execute "ln -s $DEST/lib/systemd/system/cs-splash.service $DEST/etc/systemd/system/cs-splash.service"
+execute "ln -s $DEST/lib/systemd/system/cs-fbcp.service $DEST/etc/systemd/system/sysinit.target.wants/cs-fbcp.service"
 
 # Enable if ran locally
 if [[ $DEST == "" ]] ; then
