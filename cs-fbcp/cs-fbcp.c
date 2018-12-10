@@ -35,8 +35,10 @@
 #include <linux/spi/spidev.h>
 #include <bcm_host.h>
 
-
 // CONFIGURATION AND GLOBAL STUFF ------------------------------------------
+
+#define DEBUG
+#define TICK 30
 
 #define WIDTH     240
 #define HEIGHT    216
@@ -386,12 +388,21 @@ int main(int argc, char *argv[]) {
     fclose(fp);
   }
   
+  //bufsiz = 4096;
+  
   (void)puts("[i] cs-fbcp started");
 
   // MAIN LOOP -------------------------------------------------------
 
   struct timeval tv;
-  uint32_t       timeNow, timePrev = 0, timeDelta;
+  uint32_t timeNow, timePrev = 0, timeDelta;
+  uint32_t fpsTarget = 1000000 / FPS;
+  int tick = TICK;
+
+#ifdef DEBUG
+  int debugFCounter = 0;
+  uint32_t debugTimer1, debugTimer2 = 0;
+#endif
 
   for(;;) {
     // Throttle transfer to approx FPS frames/sec.
@@ -399,16 +410,15 @@ int main(int argc, char *argv[]) {
     gettimeofday(&tv, NULL);
     timeNow = tv.tv_sec * 1000000 + tv.tv_usec;
     timeDelta = timeNow - timePrev;
-    if(timeDelta < (1000000 / FPS)) {
-      usleep((1000000 / FPS) - timeDelta);
+    if(timeDelta < fpsTarget) {
+      usleep(fpsTarget - timeDelta);
     }
     timePrev = timeNow;
 
     // Framebuffer -> intermediary (w/scale & 565 dithering)
     vc_dispmanx_snapshot(display, screen_resource, 0);
     // Intermediary -> main RAM
-    vc_dispmanx_resource_read_data(screen_resource, &rect,
-      pixelBuf, WIDTH * 2);
+    vc_dispmanx_resource_read_data(screen_resource, &rect, pixelBuf, WIDTH * 2);
 
     // Before pushing data to SPI screen, column and row
     // ranges are reset every frame to force screen data
@@ -418,15 +428,21 @@ int main(int argc, char *argv[]) {
     // a glitch where a byte doesn't get through to the
     // display (which would then be out of sync in all
     // subsequent frames).
-    writeCommand(ST77XX_CASET);
-    SPI_WRITE16(ST7789_240x240_XSTART);
-    SPI_WRITE16(ST7789_240x240_XSTART + WIDTH - 1);
-    writeCommand(ST77XX_RASET);
-    SPI_WRITE16(ST7789_240x240_YSTART);
-    SPI_WRITE16(ST7789_240x240_YSTART + HEIGHT - 1);
-    writeCommand(ST77XX_RAMWR);
+    if (tick == TICK) {
+      tick = 1;
+      
+      writeCommand(ST77XX_CASET);
+      SPI_WRITE16(ST7789_240x240_XSTART);
+      SPI_WRITE16(ST7789_240x240_XSTART + WIDTH - 1);
+      writeCommand(ST77XX_RASET);
+      SPI_WRITE16(ST7789_240x240_YSTART);
+      SPI_WRITE16(ST7789_240x240_YSTART + HEIGHT - 1);
+      writeCommand(ST77XX_RAMWR);
 
-    *gpioSet = dcMask; // DC high
+      *gpioSet = dcMask; // DC high
+    } else {
+      tick++;
+    }
 
     // Max SPI transfer size is 4096 bytes
     uint32_t bytes_remaining = WIDTH * HEIGHT * 2;
@@ -438,6 +454,22 @@ int main(int argc, char *argv[]) {
       bytes_remaining -= dat.len;
       dat.tx_buf      += dat.len;
     }
+    
+#ifdef DEBUG
+    debugFCounter++;
+    if (debugTimer1 == 0) {
+      gettimeofday(&tv, NULL);
+      debugTimer1 = tv.tv_sec * 1000000 + tv.tv_usec;
+    } else {
+      if (debugFCounter == 60) {
+        gettimeofday(&tv, NULL);
+        debugTimer2 = tv.tv_sec * 1000000 + tv.tv_usec;
+        printf("FPS: '%d'\n", 60000000/(debugTimer2-debugTimer1));
+        debugTimer1 = debugTimer2;
+        debugFCounter = 0;
+      }
+    }
+#endif
   }
 
   (void)puts("[*] cs-fbcp closing..");

@@ -118,7 +118,7 @@ fi
 # Cmdline.txt bits
 if ! exists "$DESTBOOT/cmdline_ORIGINAL.txt" ; then
   execute "cp $DESTBOOT/cmdline.txt $DESTBOOT/cmdline_ORIGINAL.txt"
-  execute "cp $BINDIR/settings/cmdline.txt $DESTBOOT/cmdline_ORIGINAL.txt"
+  execute "sed -i \"s/plymouth.enable=0/plymouth.enable=0 spidev.bufsiz=16384/\" $DESTBOOT/cmdline.txt"
 fi
 
 #####################################################################
