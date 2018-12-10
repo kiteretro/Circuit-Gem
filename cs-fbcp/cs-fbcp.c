@@ -37,8 +37,7 @@
 
 // CONFIGURATION AND GLOBAL STUFF ------------------------------------------
 
-#define DEBUG
-#define TICK 30
+//#define DEBUG
 
 #define WIDTH     240
 #define HEIGHT    216
@@ -49,6 +48,7 @@
 #define BITRATE   96000000 // 96 MHz = OK
 #define SPI_MODE  SPI_MODE_0
 #define FPS       60
+#define TICK      FPS
 
 #define ST77XX_SWRESET        0x01
 #define ST77XX_SLPOUT         0x11
