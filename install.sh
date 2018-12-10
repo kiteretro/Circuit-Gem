@@ -187,20 +187,20 @@ execute "rm -f $DEST/lib/systemd/system/cs-fbcp.service"
 # Install HUD service
 execute "cp $BINDIR/cs-hud/cs-hud.service $DEST/lib/systemd/system/cs-hud.service"
 
-execute "ln -s $DEST/lib/systemd/system/cs-hud.service $DEST/etc/systemd/system/cs-hud.service"
-execute "ln -s $DEST/lib/systemd/system/cs-hud.service $DEST/etc/systemd/system/multi-user.target.wants/cs-hud.service"
+execute "ln -s /lib/systemd/system/cs-hud.service $DEST/etc/systemd/system/cs-hud.service"
+execute "ln -s /lib/systemd/system/cs-hud.service $DEST/etc/systemd/system/multi-user.target.wants/cs-hud.service"
 
 # Install FBCP service
 execute "cp $BINDIR/cs-fbcp/cs-fbcp.service $DEST/lib/systemd/system/cs-fbcp.service"
 
-execute "ln -s $DEST/lib/systemd/system/cs-fbcp.service $DEST/etc/systemd/system/cs-fbcp.service"
-execute "ln -s $DEST/lib/systemd/system/cs-fbcp.service $DEST/etc/systemd/system/multi-user.target.wants/cs-fbcp.service"
+execute "ln -s /lib/systemd/system/cs-fbcp.service $DEST/etc/systemd/system/cs-fbcp.service"
+execute "ln -s /lib/systemd/system/cs-fbcp.service $DEST/etc/systemd/system/multi-user.target.wants/cs-fbcp.service"
 
 # Install SPLASH service
 execute "cp $BINDIR/cs-splash/cs-splash.service $DEST/lib/systemd/system/cs-splash.service"
 
-execute "ln -s $DEST/lib/systemd/system/cs-splash.service $DEST/etc/systemd/system/cs-splash.service"
-execute "ln -s $DEST/lib/systemd/system/cs-fbcp.service $DEST/etc/systemd/system/sysinit.target.wants/cs-fbcp.service"
+execute "ln -s /lib/systemd/system/cs-splash.service $DEST/etc/systemd/system/cs-splash.service"
+execute "ln -s /lib/systemd/system/cs-splash.service $DEST/etc/systemd/system/sysinit.target.wants/cs-splash.service"
 
 # Enable if ran locally
 if [[ $DEST == "" ]] ; then

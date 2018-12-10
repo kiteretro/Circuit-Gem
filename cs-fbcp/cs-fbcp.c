@@ -59,6 +59,7 @@
 #define ST77XX_RAMWR          0x2C
 #define ST77XX_COLMOD         0x3A
 #define ST77XX_MADCTL         0x36
+#define ST77XX_RAMCTRL        0xB0
 #define ST77XX_DGMEN          0xBA
 #define ST77XX_MADCTL_MY      0x80
 #define ST77XX_MADCTL_MX      0x40
@@ -125,80 +126,80 @@ static struct spi_ioc_transfer
 // 1: Pi 1 Model B revision 2, Model A, Model B+, Model A+
 // 2: Pi 2 Model B
 static int boardType(void) {
-	FILE *fp;
-	char  buf[1024], *ptr;
-	int   n, board = 1; // Assume Pi1 Rev2 by default
+  FILE *fp;
+  char  buf[1024], *ptr;
+  int   n, board = 1; // Assume Pi1 Rev2 by default
 
-	// Relies on info in /proc/cmdline.  If this becomes unreliable
-	// in the future, alt code below uses /proc/cpuinfo if any better.
+  // Relies on info in /proc/cmdline.  If this becomes unreliable
+  // in the future, alt code below uses /proc/cpuinfo if any better.
 #if 1
-	if((fp = fopen("/proc/cmdline", "r"))) {
-		while(fgets(buf, sizeof(buf), fp)) {
-			if((ptr = strstr(buf, "mem_size=")) &&
-			   (sscanf(&ptr[9], "%x", &n) == 1) &&
-			   ((n == 0x3F000000) || (n == 0x40000000))) {
-				board = 2; // Appears to be a Pi 2
-				break;
-			} else if((ptr = strstr(buf, "boardrev=")) &&
-			          (sscanf(&ptr[9], "%x", &n) == 1) &&
-			          ((n == 0x02) || (n == 0x03))) {
-				board = 0; // Appears to be an early Pi
-				break;
-			}
-		}
-		fclose(fp);
-	}
+  if((fp = fopen("/proc/cmdline", "r"))) {
+    while(fgets(buf, sizeof(buf), fp)) {
+      if((ptr = strstr(buf, "mem_size=")) &&
+         (sscanf(&ptr[9], "%x", &n) == 1) &&
+         ((n == 0x3F000000) || (n == 0x40000000))) {
+        board = 2; // Appears to be a Pi 2
+        break;
+      } else if((ptr = strstr(buf, "boardrev=")) &&
+                (sscanf(&ptr[9], "%x", &n) == 1) &&
+                ((n == 0x02) || (n == 0x03))) {
+        board = 0; // Appears to be an early Pi
+        break;
+      }
+    }
+    fclose(fp);
+  }
 #else
-	char s[8];
-	if((fp = fopen("/proc/cpuinfo", "r"))) {
-		while(fgets(buf, sizeof(buf), fp)) {
-			if((ptr = strstr(buf, "Hardware")) &&
-			   (sscanf(&ptr[8], " : %7s", s) == 1) &&
-			   (!strcmp(s, "BCM2709"))) {
-				board = 2; // Appears to be a Pi 2
-				break;
-			} else if((ptr = strstr(buf, "Revision")) &&
-			          (sscanf(&ptr[8], " : %x", &n) == 1) &&
-			          ((n == 0x02) || (n == 0x03))) {
-				board = 0; // Appears to be an early Pi
-				break;
-			}
-		}
-		fclose(fp);
-	}
+  char s[8];
+  if((fp = fopen("/proc/cpuinfo", "r"))) {
+    while(fgets(buf, sizeof(buf), fp)) {
+      if((ptr = strstr(buf, "Hardware")) &&
+         (sscanf(&ptr[8], " : %7s", s) == 1) &&
+         (!strcmp(s, "BCM2709"))) {
+        board = 2; // Appears to be a Pi 2
+        break;
+      } else if((ptr = strstr(buf, "Revision")) &&
+                (sscanf(&ptr[8], " : %x", &n) == 1) &&
+                ((n == 0x02) || (n == 0x03))) {
+        board = 0; // Appears to be an early Pi
+        break;
+      }
+    }
+    fclose(fp);
+  }
 #endif
 
-	return board;
+  return board;
 }
 
 // Crude error 'handler' (prints message, returns same code as passed in)
 static int err(int code, char *string) {
-	(void)puts(string);
-	return code;
+  (void)puts(string);
+  return code;
 }
 
 static void spiWrite(uint8_t value) {
-	*gpioSet = dcMask; // 0/low = command, 1/high = data
-	cmd.tx_buf = (unsigned long)&value;
-	cmd.len    = 1;
-	(void)ioctl(fdSPI0, SPI_IOC_MESSAGE(1), &cmd);
+  *gpioSet = dcMask; // 0/low = command, 1/high = data
+  cmd.tx_buf = (unsigned long)&value;
+  cmd.len    = 1;
+  (void)ioctl(fdSPI0, SPI_IOC_MESSAGE(1), &cmd);
 }
 
 static void SPI_WRITE16(uint16_t value) {
-	uint8_t foo[2];
-	*gpioSet = dcMask; // 0/low = command, 1/high = data
-	foo[0] = value >> 8; // MSB
-	foo[1] = value;      // LSB
-	cmd.tx_buf = (unsigned long)&foo;
-	cmd.len    = 2;
-	(void)ioctl(fdSPI0, SPI_IOC_MESSAGE(1), &cmd);
+  uint8_t foo[2];
+  *gpioSet = dcMask; // 0/low = command, 1/high = data
+  foo[0] = value >> 8; // MSB
+  foo[1] = value;      // LSB
+  cmd.tx_buf = (unsigned long)&foo;
+  cmd.len    = 2;
+  (void)ioctl(fdSPI0, SPI_IOC_MESSAGE(1), &cmd);
 }
 
 static void writeCommand(uint8_t c) {
-	*gpioClr = dcMask; // 0/low = command, 1/high = data
-	cmd.tx_buf = (unsigned long)&c;
-	cmd.len    = 1;
-	(void)ioctl(fdSPI0, SPI_IOC_MESSAGE(1), &cmd);
+  *gpioClr = dcMask; // 0/low = command, 1/high = data
+  cmd.tx_buf = (unsigned long)&c;
+  cmd.len    = 1;
+  (void)ioctl(fdSPI0, SPI_IOC_MESSAGE(1), &cmd);
 }
 
 
@@ -206,87 +207,91 @@ static void writeCommand(uint8_t c) {
 
 int main(int argc, char *argv[]) {
 
-	uint16_t pixelBuf[WIDTH * HEIGHT]; // 16-bit pixel buffer
-	uint8_t  isPi2 = 0;
+  uint16_t pixelBuf[WIDTH * HEIGHT]; // 16-bit pixel buffer
+  uint8_t  isPi2 = 0;
 
-	// DISPMANX INIT ---------------------------------------------------
+  // DISPMANX INIT ---------------------------------------------------
   
   (void)puts("[*] cs-fbcp starting..");
 
-	bcm_host_init();
+  bcm_host_init();
 
-	DISPMANX_DISPLAY_HANDLE_T  display; // Primary framebuffer display
-	DISPMANX_RESOURCE_HANDLE_T screen_resource; // Intermediary buf
-	uint32_t                   handle;
-	VC_RECT_T                  rect;
+  DISPMANX_DISPLAY_HANDLE_T  display; // Primary framebuffer display
+  DISPMANX_RESOURCE_HANDLE_T screen_resource; // Intermediary buf
+  uint32_t                   handle;
+  VC_RECT_T                  rect;
 
-	if(!(display = vc_dispmanx_display_open(0))) {
-		return err(1, "Can't open primary display");
-	}
+  if(!(display = vc_dispmanx_display_open(0))) {
+    return err(1, "Can't open primary display");
+  }
 
-	// screen_resource is an intermediary between framebuffer and
-	// main RAM -- VideoCore will copy the primary framebuffer
-	// contents to this resource while providing interpolated
-	// scaling plus 8/8/8 -> 5/6/5 dithering.
-	if(!(screen_resource = vc_dispmanx_resource_create(
-	  VC_IMAGE_RGB565, WIDTH, HEIGHT, &handle))) {
-		vc_dispmanx_display_close(display);
-		return err(2, "Can't create screen buffer");
-	}
-	vc_dispmanx_rect_set(&rect, 0, 0, WIDTH, HEIGHT);
+  // screen_resource is an intermediary between framebuffer and
+  // main RAM -- VideoCore will copy the primary framebuffer
+  // contents to this resource while providing interpolated
+  // scaling plus 8/8/8 -> 5/6/5 dithering.
+  if(!(screen_resource = vc_dispmanx_resource_create(
+    VC_IMAGE_RGB565, WIDTH, HEIGHT, &handle))) {
+    vc_dispmanx_display_close(display);
+    return err(2, "Can't create screen buffer");
+  }
+  vc_dispmanx_rect_set(&rect, 0, 0, WIDTH, HEIGHT);
 
-	// GPIO AND OLED SCREEN INIT ---------------------------------------
+  // GPIO AND OLED SCREEN INIT ---------------------------------------
 
-	int fd;
-	if((fd = open("/dev/mem", O_RDWR | O_SYNC)) < 0) {
-		return err(3, "Can't open /dev/mem (try 'sudo')\n");
-	}
-	isPi2 = (boardType() == 2);
-	gpio  = (volatile unsigned *)mmap( // Memory-map I/O
-	  NULL,                 // Any adddress will do
-	  BLOCK_SIZE,           // Mapped block length
-	  PROT_READ|PROT_WRITE, // Enable read+write
-	  MAP_SHARED,           // Shared w/other processes
-	  fd,                   // File to map
-	  isPi2 ?
-	   PI2_GPIO_BASE :      // -> GPIO registers
-	   PI1_GPIO_BASE);
-	close(fd);              // Not needed after mmap()
-	if(gpio == MAP_FAILED) {
-		return err(4, "Can't mmap()");
-	}
-	gpioSet   = &gpio[7];
-	gpioClr   = &gpio[10];
-	resetMask = 1 << RESET_PIN;
-	dcMask    = 1 << DC_PIN;
+  int fd;
+  if((fd = open("/dev/mem", O_RDWR | O_SYNC)) < 0) {
+    return err(3, "Can't open /dev/mem (try 'sudo')\n");
+  }
+  isPi2 = (boardType() == 2);
+  gpio  = (volatile unsigned *)mmap( // Memory-map I/O
+    NULL,                 // Any adddress will do
+    BLOCK_SIZE,           // Mapped block length
+    PROT_READ|PROT_WRITE, // Enable read+write
+    MAP_SHARED,           // Shared w/other processes
+    fd,                   // File to map
+    isPi2 ?
+     PI2_GPIO_BASE :      // -> GPIO registers
+     PI1_GPIO_BASE);
+  close(fd);              // Not needed after mmap()
+  if(gpio == MAP_FAILED) {
+    return err(4, "Can't mmap()");
+  }
+  gpioSet   = &gpio[7];
+  gpioClr   = &gpio[10];
+  resetMask = 1 << RESET_PIN;
+  dcMask    = 1 << DC_PIN;
   ledMask    = 1 << LED_PIN;
 
-	if((fdSPI0 = open("/dev/spidev0.0", O_WRONLY | O_NONBLOCK)) < 0) {
-		return err(5, "Can't open /dev/spidev0.0 (try 'sudo')\n");
-	}
-	uint8_t mode = SPI_MODE;
-	ioctl(fdSPI0, SPI_IOC_WR_MODE, &mode);
-	ioctl(fdSPI0, SPI_IOC_WR_MAX_SPEED_HZ, BITRATE);
+  if((fdSPI0 = open("/dev/spidev0.0", O_WRONLY | O_NONBLOCK)) < 0) {
+    return err(5, "Can't open /dev/spidev0.0 (try 'sudo')\n");
+  }
+  uint8_t mode = SPI_MODE;
+  ioctl(fdSPI0, SPI_IOC_WR_MODE, &mode);
+  ioctl(fdSPI0, SPI_IOC_WR_MAX_SPEED_HZ, BITRATE);
 
-	// Set 3 pins as outputs.  Must use INP before OUT.
-	INP_GPIO(RESET_PIN); OUT_GPIO(RESET_PIN);
-	INP_GPIO(DC_PIN)   ; OUT_GPIO(DC_PIN);
+  // Set 3 pins as outputs.  Must use INP before OUT.
+  INP_GPIO(RESET_PIN); OUT_GPIO(RESET_PIN);
+  INP_GPIO(DC_PIN)   ; OUT_GPIO(DC_PIN);
   INP_GPIO(LED_PIN); OUT_GPIO(LED_PIN);
 
-	*gpioSet = resetMask; usleep(50); // Reset high,
-	*gpioClr = resetMask; usleep(150000); // low,
-	*gpioSet = resetMask; usleep(50); // high
+  *gpioSet = resetMask; usleep(50); // Reset high,
+  *gpioClr = resetMask; usleep(150000); // low,
+  *gpioSet = resetMask; usleep(50); // high
   
   *gpioSet = ledMask; usleep(50); // LED high
   
   // Initialize display
-	writeCommand(ST77XX_SWRESET);
+  writeCommand(ST77XX_SWRESET);
   usleep(150000);
   writeCommand(ST77XX_SLPOUT);
   usleep(150000);
 
   writeCommand(ST77XX_MADCTL);
+  spiWrite(0x00); //RGB
+
+  writeCommand(ST77XX_RAMCTRL);
   spiWrite(0x00);
+  spiWrite(0xC8);
 
   writeCommand(ST77XX_COLMOD);
   spiWrite(0x05); //05:16BIT
@@ -369,81 +374,75 @@ int main(int argc, char *argv[]) {
     SPI_WRITE16(0x0000);
   }
   
-	// Get SPI buffer size from /sys/module/spidev/parameters/bufsiz
-	// Default is 4096.
+  // Get SPI buffer size from /sys/module/spidev/parameters/bufsiz
+  // Default is 4096.
 
-	FILE *fp;
-	char  buf[32];
-	int   n, bufsiz = 4096;
+  FILE *fp;
+  char  buf[32];
+  int   n, bufsiz = 4096;
 
-	if((fp = fopen("/sys/module/spidev/parameters/bufsiz", "r"))) {
-		if(fscanf(fp, "%d", &n) == 1) bufsiz = n;
-		fclose(fp);
-	}
+  if((fp = fopen("/sys/module/spidev/parameters/bufsiz", "r"))) {
+    if(fscanf(fp, "%d", &n) == 1) bufsiz = n;
+    fclose(fp);
+  }
   
   (void)puts("[i] cs-fbcp started");
 
-	// MAIN LOOP -------------------------------------------------------
+  // MAIN LOOP -------------------------------------------------------
 
-	struct timeval tv;
-	uint32_t       timeNow, timePrev = 0, timeDelta;
+  struct timeval tv;
+  uint32_t       timeNow, timePrev = 0, timeDelta;
 
-	for(;;) {
-		// Throttle transfer to approx FPS frames/sec.
-		// usleep() avoids heavy CPU load of time polling.
-		gettimeofday(&tv, NULL);
-		timeNow = tv.tv_sec * 1000000 + tv.tv_usec;
-		timeDelta = timeNow - timePrev;
-		if(timeDelta < (1000000 / FPS)) {
-			usleep((1000000 / FPS) - timeDelta);
-		}
-		timePrev = timeNow;
+  for(;;) {
+    // Throttle transfer to approx FPS frames/sec.
+    // usleep() avoids heavy CPU load of time polling.
+    gettimeofday(&tv, NULL);
+    timeNow = tv.tv_sec * 1000000 + tv.tv_usec;
+    timeDelta = timeNow - timePrev;
+    if(timeDelta < (1000000 / FPS)) {
+      usleep((1000000 / FPS) - timeDelta);
+    }
+    timePrev = timeNow;
 
-		// Framebuffer -> intermediary (w/scale & 565 dithering)
-		vc_dispmanx_snapshot(display, screen_resource, 0);
-		// Intermediary -> main RAM
-		vc_dispmanx_resource_read_data(screen_resource, &rect,
-		  pixelBuf, WIDTH * 2);
+    // Framebuffer -> intermediary (w/scale & 565 dithering)
+    vc_dispmanx_snapshot(display, screen_resource, 0);
+    // Intermediary -> main RAM
+    vc_dispmanx_resource_read_data(screen_resource, &rect,
+      pixelBuf, WIDTH * 2);
 
-		// Before pushing data to SPI screen, column and row
-		// ranges are reset every frame to force screen data
-		// pointer back to (0,0).  Though the pointer will
-		// automatically 'wrap' when the end of the screen is
-		// reached, this is extra insurance in case there's
-		// a glitch where a byte doesn't get through to the
-		// display (which would then be out of sync in all
-		// subsequent frames).
-		writeCommand(ST77XX_CASET);
-		SPI_WRITE16(ST7789_240x240_XSTART);
-		SPI_WRITE16(ST7789_240x240_XSTART + WIDTH - 1);
-		writeCommand(ST77XX_RASET);
-		SPI_WRITE16(ST7789_240x240_YSTART);
-		SPI_WRITE16(ST7789_240x240_YSTART + HEIGHT - 1);
-		writeCommand(ST77XX_RAMWR);
+    // Before pushing data to SPI screen, column and row
+    // ranges are reset every frame to force screen data
+    // pointer back to (0,0).  Though the pointer will
+    // automatically 'wrap' when the end of the screen is
+    // reached, this is extra insurance in case there's
+    // a glitch where a byte doesn't get through to the
+    // display (which would then be out of sync in all
+    // subsequent frames).
+    writeCommand(ST77XX_CASET);
+    SPI_WRITE16(ST7789_240x240_XSTART);
+    SPI_WRITE16(ST7789_240x240_XSTART + WIDTH - 1);
+    writeCommand(ST77XX_RASET);
+    SPI_WRITE16(ST7789_240x240_YSTART);
+    SPI_WRITE16(ST7789_240x240_YSTART + HEIGHT - 1);
+    writeCommand(ST77XX_RAMWR);
 
-		*gpioSet = dcMask; // DC high
+    *gpioSet = dcMask; // DC high
 
-		// 16-bit conversion is done by GPU, but still need byte swap
-		int i;
-		for(i=0; i<WIDTH*HEIGHT; i++) {
-			pixelBuf[i] = __builtin_bswap16(pixelBuf[i]);
-		}
-
-		// Max SPI transfer size is 4096 bytes
-		uint32_t bytes_remaining = WIDTH * HEIGHT * 2;
-		dat.tx_buf = (uint32_t)pixelBuf;
-		while(bytes_remaining > 0) {
-			dat.len = (bytes_remaining > bufsiz) ?
-			bufsiz : bytes_remaining;
-			(void)ioctl(fdSPI0, SPI_IOC_MESSAGE(1), &dat);
-			bytes_remaining -= dat.len;
-			dat.tx_buf      += dat.len;
-		}
-	}
+    // Max SPI transfer size is 4096 bytes
+    uint32_t bytes_remaining = WIDTH * HEIGHT * 2;
+    dat.tx_buf = (uint32_t)pixelBuf;
+    while(bytes_remaining > 0) {
+      dat.len = (bytes_remaining > bufsiz) ?
+      bufsiz : bytes_remaining;
+      (void)ioctl(fdSPI0, SPI_IOC_MESSAGE(1), &dat);
+      bytes_remaining -= dat.len;
+      dat.tx_buf      += dat.len;
+    }
+  }
 
   (void)puts("[*] cs-fbcp closing..");
-	vc_dispmanx_resource_delete(screen_resource);
-	vc_dispmanx_display_close(display);
+  vc_dispmanx_resource_delete(screen_resource);
+  vc_dispmanx_display_close(display);
   (void)puts("[i] cs-fbcp closed");
-	return 0;
+  return 0;
 }
