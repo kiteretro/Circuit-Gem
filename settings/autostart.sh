@@ -22,6 +22,7 @@
 
 # Load config file and action
 CONFIGFILE="/boot/config-cs.txt"
+FIRSTBOOT="/boot/firstboot.txt"
 if [ -f $CONFIGFILE ]; then
   
   source $CONFIGFILE
@@ -29,6 +30,13 @@ if [ -f $CONFIGFILE ]; then
   if [[ -n "$STARTUPEXEC" ]] ; then
     echo "Starting STARTUPEXEC.."
     $STARTUPEXEC &
+  fi
+  
+  if [ ! -f $FIRSTBOOT ]; then
+    speaker-test -c2 -l1 --test=pink
+    sudo alsactl restore
+    amixer sset PCM "25%"
+    sudo touch $FIRSTBOOT
   fi
   
   if [[ "$MODE" == "TESTER" && -n "$TESTER" ]] ; then

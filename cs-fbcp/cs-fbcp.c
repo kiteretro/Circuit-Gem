@@ -214,7 +214,7 @@ int main(int argc, char *argv[]) {
 
   // DISPMANX INIT ---------------------------------------------------
   
-  (void)puts("[*] cs-fbcp starting..");
+  printf("[*] cs-fbcp starting..\n");
 
   bcm_host_init();
 
@@ -387,10 +387,8 @@ int main(int argc, char *argv[]) {
     if(fscanf(fp, "%d", &n) == 1) bufsiz = n;
     fclose(fp);
   }
-  
-  //bufsiz = 4096;
-  
-  (void)puts("[i] cs-fbcp started");
+    
+  printf("[i] cs-fbcp started\n");
 
   // MAIN LOOP -------------------------------------------------------
 
@@ -472,9 +470,9 @@ int main(int argc, char *argv[]) {
 #endif
   }
 
-  (void)puts("[*] cs-fbcp closing..");
+  printf("[*] cs-fbcp closing..\n");
   vc_dispmanx_resource_delete(screen_resource);
   vc_dispmanx_display_close(display);
-  (void)puts("[i] cs-fbcp closed");
+  printf("[i] cs-fbcp closed\n");
   return 0;
 }
