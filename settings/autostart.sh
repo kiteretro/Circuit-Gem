@@ -33,9 +33,9 @@ if [ -f $CONFIGFILE ]; then
   fi
   
   if [ ! -f $FIRSTBOOT ]; then
-    speaker-test -c2 -l1 --test=pink
+    speaker-test -l1 --test=sine -f100
     sudo alsactl restore
-    amixer sset PCM "25%"
+    amixer sset PCM "20%"
     sudo touch $FIRSTBOOT
   fi
   
