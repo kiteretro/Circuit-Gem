@@ -149,7 +149,7 @@ fi
 if ! exists "$DEST/etc/emulationstation/themes/tft/system/theme.xml" ; then
   execute "mkdir -p $DEST/etc/emulationstation/themes"
   execute "rm -rf $DEST/etc/emulationstation/themes/tft"
-  execute "git clone --recursive --depth 1 --branch master https://github.com/anthonycaccese/es-theme-tft.git $DEST/etc/emulationstation/themes/tft"
+  execute "git clone --recursive --depth 1 --branch master https://github.com/kiteretro/es-theme-tft.git $DEST/etc/emulationstation/themes/tft"
 fi
 
 # Copy a default es_settings.cfg file
