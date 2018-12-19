@@ -17,7 +17,7 @@
 // (2x2 downsampling is performed, this is why 480x480 vs 240x240)
 
 // RECOMMENDED: To enable smooth interp in MAME,
-// edit /opt/retropie/configs/all/retroarch.cfg:
+// edit /opt/r*/configs/all/retroarch.cfg:
 // video_smooth = "true"
 // (This line is present but set to "false" by default)
 
