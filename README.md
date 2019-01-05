@@ -15,3 +15,4 @@ _PRE-ORDER SIGN UP NOTIFICATION: https://goo.gl/forms/e97uUvPOfUxPWdz82_
 Start by reading the wiki! It contains everything from the software setup to the hardware guides, and also troubleshooting!
 
 https://github.com/kiteretro/Circuit-Gem/wiki
+
