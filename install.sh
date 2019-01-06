@@ -142,14 +142,14 @@ execute "cp $BINDIR/settings/cs_shutdown.sh $DEST/opt/cs_shutdown.sh"
 if ! exists "$DEST/etc/emulationstation/themes/pixel/system/theme.xml" ; then
   execute "mkdir -p $DEST/etc/emulationstation/themes"
   execute "rm -rf $DEST/etc/emulationstation/themes/pixel"
-  execute "git clone --recursive --depth 1 --branch master https://github.com/kiteretro/es-theme-pixel.git $DEST/etc/emulationstation/themes/pixel"
+  execute "git clone --recursive --depth 1 --branch master https://github.com/krextra/es-theme-pixel.git $DEST/etc/emulationstation/themes/pixel"
 fi
 
 # Install the tft theme
 if ! exists "$DEST/etc/emulationstation/themes/tft/system/theme.xml" ; then
   execute "mkdir -p $DEST/etc/emulationstation/themes"
   execute "rm -rf $DEST/etc/emulationstation/themes/tft"
-  execute "git clone --recursive --depth 1 --branch master https://github.com/kiteretro/es-theme-tft.git $DEST/etc/emulationstation/themes/tft"
+  execute "git clone --recursive --depth 1 --branch master https://github.com/krextra/es-theme-tft.git $DEST/etc/emulationstation/themes/tft"
 fi
 
 # Copy a default es_settings.cfg file
