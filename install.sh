@@ -131,6 +131,7 @@ execute "cp $BINDIR/settings/asoundrc.txt $DEST/home/pi/.asoundrc"
 # Copy autostart
 if ! exists "$DEST/opt/retropie/configs/all/autostart_ORIGINAL.sh" ; then
   execute "mv $DEST/opt/retropie/configs/all/autostart.sh $DEST/opt/retropie/configs/all/autostart_ORIGINAL.sh"
+  execute "echo '/home/pi/$GITHUBPROJECT/settings/kr_logo.png' > $DEST/etc/splashscreen.list"
 fi
 execute "cp $BINDIR/settings/autostart.sh $DEST/opt/retropie/configs/all/autostart.sh"
 execute "chown $USER:$USER $DEST/opt/retropie/configs/all/autostart.sh"
