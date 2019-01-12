@@ -32,7 +32,7 @@ import os.path
 bindir = "/home/pi/Circuit-Gem/cs-tester/"
 
 # Hardware variables
-pi_shdn = 17
+pi_shdn = 4
 
 # Init GPIO pins
 GPIO.setwarnings(False)
