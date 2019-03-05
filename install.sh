@@ -185,6 +185,10 @@ execute "rm -f $DEST/etc/systemd/system/cs-fbcp.service"
 execute "rm -f $DEST/etc/systemd/system/multi-user.target.wants/cs-fbcp.service"
 execute "rm -f $DEST/lib/systemd/system/cs-fbcp.service"
 
+execute "rm -f $DEST/etc/systemd/system/cs-splash.service"
+execute "rm -f $DEST/etc/systemd/system/sysinit.target.wants/cs-splash.service"
+execute "rm -f $DEST/lib/systemd/system/cs-splash.service"
+
 # Install HUD service
 execute "cp $BINDIR/cs-hud/cs-hud.service $DEST/lib/systemd/system/cs-hud.service"
 
