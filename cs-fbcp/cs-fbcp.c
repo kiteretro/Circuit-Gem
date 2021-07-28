@@ -40,7 +40,7 @@
 //#define DEBUG
 
 #define WIDTH     240
-#define HEIGHT    216
+#define HEIGHT    240
 #define REAL_HEIGHT 240
 #define RESET_PIN 25
 #define DC_PIN    27
