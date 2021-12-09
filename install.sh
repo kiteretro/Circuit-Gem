@@ -57,6 +57,13 @@ else
   BRANCH="master"
 fi
 
+BUSTER=$(cat $DEST/etc/os-release | grep VERSION_CODENAME=buster)
+if [[ $BUSTER != '' ]] ; then
+  echo "Detected BUSTER"
+else
+  echo "Detected NO BUSTER"
+fi
+
 #####################################################################
 # Functions
 execute() { #STRING
@@ -165,11 +172,17 @@ execute "rm -f $DEST/etc/systemd/system/dhcpcd.service.d/wait.conf"
 # Remove wifi country disabler
 execute "rm -f $DEST/etc/systemd/system/multi-user.target.wants/wifi-country.service"
 
-# Install rfkill
-execute "dpkg -x $BINDIR/settings/rfkill_0.5-1_armhf.deb $DEST/"
-
-# Install wiringPi
-execute "dpkg -x $BINDIR/settings/wiringpi_2.46_armhf.deb $DEST/"
+if [[ $BUSTER != '' ]] ; then
+  # Install rfkill
+  execute "dpkg -x $BINDIR/settings/rfkill_2.33.1-0.1_armhf.deb $DEST/"
+  # Install wiringPi
+  execute "dpkg -x $BINDIR/settings/wiringpi_2.50_armhf.deb $DEST/"
+else
+  # Install rfkill
+  execute "dpkg -x $BINDIR/settings/rfkill_0.5-1_armhf.deb $DEST/"
+  # Install wiringPi
+  execute "dpkg -x $BINDIR/settings/wiringpi_2.46_armhf.deb $DEST/"
+fi
 
 # Enable /ramdisk as a tmpfs (ramdisk)
 if [[ $(grep '/ramdisk' $DEST/etc/fstab) == "" ]] ; then

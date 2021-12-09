@@ -4,12 +4,6 @@
 
 # Additional overlays and parameters are documented /boot/overlays/README
 
-# Some settings from the orignal config.txt
-gpu_mem_256=128
-gpu_mem_512=256
-gpu_mem_1024=256
-overscan_scale=1
-
 ##########################
 #### GENERIC SETTINGS ####
 ##########################
@@ -41,6 +35,7 @@ dtoverlay=gpio-poweroff,gpiopin=17,active_low="y"
 
 # Enable SPI
 dtparam=spi=on
+dtoverlay=spi0-1cs
 
 # Custom HDMI res
 hdmi_force_hotplug=1
@@ -57,3 +52,18 @@ display_rotate=2
 dtoverlay=hifiberry-dac
 dtoverlay=i2s-mmap
 
+#########################
+#### OTHER SETTINGS #####
+#########################
+
+[pi4]
+# Enable DRM VC4 V3D driver on top of the dispmanx display stack
+dtoverlay=vc4-fkms-v3d
+max_framebuffers=2
+
+[all]
+#dtoverlay=vc4-fkms-v3d
+gpu_mem_256=128
+gpu_mem_512=256
+gpu_mem_1024=256
+overscan_scale=1

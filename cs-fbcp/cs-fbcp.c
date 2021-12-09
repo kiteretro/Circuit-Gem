@@ -32,6 +32,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
+#include <ctype.h>
 #include <linux/spi/spidev.h>
 #include <bcm_host.h>
 
@@ -122,62 +123,74 @@ static struct spi_ioc_transfer
 
 // UTILITY FUNCTIONS -------------------------------------------------------
 
-// Detect Pi board type.  Doesn't return super-granular details,
-// just the most basic distinction needed for GPIO compatibility:
-// 0: Pi 1 Model B revision 1
-// 1: Pi 1 Model B revision 2, Model A, Model B+, Model A+
-// 2: Pi 2 Model B
-static int boardType(void) {
-  FILE *fp;
-  char  buf[1024], *ptr;
-  int   n, board = 1; // Assume Pi1 Rev2 by default
-
-  // Relies on info in /proc/cmdline.  If this becomes unreliable
-  // in the future, alt code below uses /proc/cpuinfo if any better.
-#if 1
-  if((fp = fopen("/proc/cmdline", "r"))) {
-    while(fgets(buf, sizeof(buf), fp)) {
-      if((ptr = strstr(buf, "mem_size=")) &&
-         (sscanf(&ptr[9], "%x", &n) == 1) &&
-         ((n == 0x3F000000) || (n == 0x40000000))) {
-        board = 2; // Appears to be a Pi 2
-        break;
-      } else if((ptr = strstr(buf, "boardrev=")) &&
-                (sscanf(&ptr[9], "%x", &n) == 1) &&
-                ((n == 0x02) || (n == 0x03))) {
-        board = 0; // Appears to be an early Pi
-        break;
-      }
-    }
-    fclose(fp);
-  }
-#else
-  char s[8];
-  if((fp = fopen("/proc/cpuinfo", "r"))) {
-    while(fgets(buf, sizeof(buf), fp)) {
-      if((ptr = strstr(buf, "Hardware")) &&
-         (sscanf(&ptr[8], " : %7s", s) == 1) &&
-         (!strcmp(s, "BCM2709"))) {
-        board = 2; // Appears to be a Pi 2
-        break;
-      } else if((ptr = strstr(buf, "Revision")) &&
-                (sscanf(&ptr[8], " : %x", &n) == 1) &&
-                ((n == 0x02) || (n == 0x03))) {
-        board = 0; // Appears to be an early Pi
-        break;
-      }
-    }
-    fclose(fp);
-  }
-#endif
-
-  return board;
-}
-
 // Crude error 'handler' (prints message, returns same code as passed in)
 static int err(int code, char *string) {
   (void)puts(string);
   return code;
+}
+
+static char * trimWhiteSpace(char *string) {
+  if (string == NULL) {
+    return NULL;
+  }
+
+  while (isspace(*string)) {
+    string++;
+  }
+
+  if (*string == '\0') {
+    return string;
+  }
+
+  char *end = string;
+
+  while (*end) {
+    ++end;
+  }
+  --end;
+
+  while ((end > string) && isspace(*end)) {
+    end--;
+  }
+
+  *(end + 1) = 0;
+  return string;
+}
+
+int getRaspberryPiRev() {
+  int rev = 0;
+
+  FILE *fp = fopen("/proc/cpuinfo", "r");
+
+  if (fp == NULL)
+  {
+    perror("/proc/cpuinfo");
+    return err(3, "Can't open /proc/cpuinfo (try 'sudo')\n");
+  }
+
+  char entry[80];
+
+  while (fgets(entry, sizeof(entry), fp) != NULL)
+  {
+    char* saveptr = NULL;
+
+    char *key = trimWhiteSpace(strtok_r(entry, ":", &saveptr));
+    char *value = trimWhiteSpace(strtok_r(NULL, ":", &saveptr));
+
+    if (strcasecmp("model name", key) == 0) {
+      if (strstr(value, "ARMv6")) {
+        rev = 0;
+      } else if (strstr(value, "ARMv7")) {
+        rev = 1;
+      } else {
+        rev = -1;
+      }
+    }
+  }
+
+  fclose(fp);
+
+  return rev;
 }
 
 static void spiWrite(uint8_t value) {
@@ -210,7 +223,7 @@ static void writeCommand(uint8_t c) {
 int main(int argc, char *argv[]) {
 
   uint16_t pixelBuf[WIDTH * HEIGHT]; // 16-bit pixel buffer
-  uint8_t  isPi2 = 0;
+  uint8_t  isPi2 = 1;
 
   // DISPMANX INIT ---------------------------------------------------
   
@@ -244,7 +257,14 @@ int main(int argc, char *argv[]) {
   if((fd = open("/dev/mem", O_RDWR | O_SYNC)) < 0) {
     return err(3, "Can't open /dev/mem (try 'sudo')\n");
   }
-  isPi2 = (boardType() == 2);
+  
+  isPi2 = getRaspberryPiRev();
+  printf("[i] cs-fbcp detected revision: %d\n", isPi2);
+  
+  if (isPi2 < 0) {
+    return err(3, "Unknown pi, cannot run\n");
+  }
+  
   gpio  = (volatile unsigned *)mmap( // Memory-map I/O
     NULL,                 // Any adddress will do
     BLOCK_SIZE,           // Mapped block length
