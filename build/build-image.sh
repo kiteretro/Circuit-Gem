@@ -134,7 +134,8 @@ execute "cp $IMG $OUTFILE"
 
 # Mount
 execute "mount -o loop,offset=4194304 $OUTFILE $MOUNTFAT32"
-execute "mount -o loop,offset=63963136 $OUTFILE $MOUNTEXT4"
+#execute "mount -o loop,offset=63963136 $OUTFILE $MOUNTEXT4"  # OLD IMAGES
+execute "mount -o loop,offset=272629760 $OUTFILE $MOUNTEXT4"
 
 # Install
 execute "../install.sh YES $BRANCH $MOUNTFAT32 $MOUNTEXT4"
